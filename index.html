@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="健康指南">
+<meta name="theme-color" content="#0a0f1a">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230a0f1a' width='100' height='100' rx='20'/><text y='68' x='50' text-anchor='middle' font-size='55'>🌿</text></svg>">
+<title>健康指南</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0a0f1a;
+    --bg2: #111827;
+    --card: #1a2236;
+    --card-hover: #1e2840;
+    --border: rgba(255,255,255,0.06);
+    --text: #e8edf5;
+    --text2: #8b95a8;
+    --text3: #5a6478;
+    --green: #4ade80;
+    --green-dim: rgba(74,222,128,0.1);
+    --orange: #fb923c;
+    --orange-dim: rgba(251,146,60,0.1);
+    --blue: #60a5fa;
+    --blue-dim: rgba(96,165,250,0.1);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167,139,250,0.1);
+    --rose: #fb7185;
+    --rose-dim: rgba(251,113,133,0.1);
+    --yellow: #fbbf24;
+    --yellow-dim: rgba(251,191,36,0.1);
+    --cyan: #22d3ee;
+    --r: 16px;
+    --rs: 10px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Noto Sans SC', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  ::-webkit-scrollbar { width:0; height:0; }
+
+  /* === Tab Bar === */
+  .tab-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    z-index: 200;
+    background: rgba(10,15,26,0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 8px);
+    padding-top: 6px;
+  }
+  .tab-item {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 2px;
+    padding: 4px 0;
+    color: var(--text3);
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 500;
+    transition: color 0.2s;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tab-item.active { color: var(--green); }
+  .tab-item .tab-icon { font-size: 22px; line-height: 1; }
+  .tab-item .tab-dot {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--green);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .tab-item.active .tab-dot { opacity: 1; }
+
+  /* === Pages === */
+  .page { display: none; padding: 0 16px 100px; max-width: 480px; margin: 0 auto; }
+  .page.active { display: block; }
+  .page-header {
+    padding: 56px 0 24px;
+    text-align: center;
+  }
+  .page-header h1 {
+    font-size: 24px; font-weight: 700;
+    background: linear-gradient(135deg, #fff 30%, var(--green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-header p { font-size: 13px; color: var(--text2); margin-top: 4px; }
+
+  /* === Cards === */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 18px;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 15px; font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px;
+  }
+  .card-body { font-size: 14px; line-height: 1.8; color: var(--text2); }
+  .card-body strong { color: var(--text); font-weight: 600; }
+  .card-body em { color: var(--green); font-style: normal; font-weight: 500; }
+
+  /* === Principle cards === */
+  .principle {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 20px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .principle::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  }
+  .principle .num {
+    font-size: 32px; font-weight: 800;
+    opacity: 0.08;
+    position: absolute; right: 16px; top: 8px;
+    line-height: 1;
+  }
+  .principle h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .principle p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+  .principle .why {
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--text3);
+    line-height: 1.6;
+  }
+  .principle .why strong { color: var(--text2); }
+
+  .p-green::before { background: var(--green); }
+  .p-blue::before { background: var(--blue); }
+  .p-orange::before { background: var(--orange); }
+  .p-purple::before { background: var(--purple); }
+  .p-rose::before { background: var(--rose); }
+
+  /* === Daily Knowledge === */
+  .knowledge-card {
+    background: linear-gradient(135deg, rgba(74,222,128,0.06) 0%, rgba(34,211,238,0.06) 100%);
+    border: 1px solid rgba(74,222,128,0.12);
+    border-radius: var(--r);
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+  .knowledge-card .k-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .knowledge-card .k-tag {
+    font-size: 11px; font-weight: 600;
+    color: var(--green);
+    background: rgba(74,222,128,0.12);
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .knowledge-card .k-date { font-size: 11px; color: var(--text3); }
+  .knowledge-card .k-title {
+    font-size: 16px; font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  .knowledge-card .k-body {
+    font-size: 13px; color: var(--text2); line-height: 1.8;
+  }
+  .knowledge-card .k-body strong { color: var(--text); }
+  .knowledge-card .k-source {
+    margin-top: 12px; padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 11px; color: var(--text3);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .knowledge-card .k-evidence {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 10px; font-weight: 600;
+    padding: 2px 8px; border-radius: 10px;
+    margin-left: 8px;
+  }
+  .evidence-strong { background: rgba(74,222,128,0.15); color: var(--green); }
+  .evidence-moderate { background: rgba(251,191,36,0.15); color: var(--yellow); }
+
+  .knowledge-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text3);
+    font-size: 14px;
+  }
+  .knowledge-empty .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+  /* === Callout === */
+  .callout {
+    border-radius: var(--rs);
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    line-height: 1.6;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .c-green { background: var(--green-dim); border: 1px solid rgba(74,222,128,0.12); }
+  .c-orange { background: var(--orange-dim); border: 1px solid rgba(251,146,60,0.12); }
+  .c-blue { background: var(--blue-dim); border: 1px solid rgba(96,165,250,0.12); }
+  .c-rose { background: var(--rose-dim); border: 1px solid rgba(251,113,133,0.12); }
+
+  /* === Section label === */
+  .section-label {
+    font-size: 12px; font-weight: 600; color: var(--text3);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin: 24px 0 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  /* === Accordion === */
+  .accordion {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .accordion-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .accordion-header .a-emoji { font-size: 18px; }
+  .accordion-header .a-title { flex: 1; font-size: 14px; font-weight: 600; }
+  .accordion-header .a-chevron {
+    font-size: 12px; color: var(--text3);
+    transition: transform 0.3s;
+  }
+  .accordion.open .a-chevron { transform: rotate(180deg); }
+  .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+  .accordion.open .accordion-body { max-height: 800px; }
+  .accordion-content { padding: 0 16px 16px; font-size: 13px; color: var(--text2); line-height: 1.8; }
+  .accordion-content strong { color: var(--text); }
+
+  /* === Checklist === */
+  .my-data {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    margin-bottom: 12px;
+  }
+  .data-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--rs);
+    padding: 14px;
+    text-align: center;
+  }
+  .data-card .d-value {
+    font-size: 22px; font-weight: 700;
+    background: linear-gradient(135deg, var(--orange), var(--green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .data-card .d-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .data-card .d-status { font-size: 10px; margin-top: 4px; font-weight: 500; }
+  .status-warn { color: var(--orange); }
+  .status-ok { color: var(--green); }
+
+  /* === History list === */
+  .history-list { margin-bottom: 12px; }
+  .history-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-item .h-date { font-size: 12px; color: var(--text3); width: 50px; flex-shrink: 0; }
+  .history-item .h-title { flex: 1; font-size: 14px; }
+  .history-item .h-arrow { color: var(--text3); font-size: 12px; }
+
+  /* === Fade in === */
+  .fade { opacity: 0; transform: translateY(12px); transition: all 0.4s ease; }
+  .fade.show { opacity: 1; transform: translateY(0); }
+
+  /* === Refresh btn === */
+  .refresh-btn {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin: 16px auto;
+    padding: 10px 20px;
+    background: var(--green-dim);
+    border: 1px solid rgba(74,222,128,0.15);
+    border-radius: 20px;
+    color: var(--green);
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.15s;
+  }
+  .refresh-btn:active { transform: scale(0.96); }
+
+  /* === Quote === */
+  .quote {
+    text-align: center;
+    padding: 24px;
+    margin: 16px 0;
+  }
+  .quote-text {
+    font-size: 16px; font-weight: 600; line-height: 1.7;
+    background: linear-gradient(135deg, var(--green), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .quote-sub { font-size: 12px; color: var(--text3); margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<!-- ====== Page 1: 每日知识 ====== -->
+<div class="page active" id="page-today">
+  <div class="page-header">
+    <h1>💡 今日知识</h1>
+    <p>每天 1-3 条，经多方验证的健康知识</p>
+  </div>
+
+  <div id="knowledgeContainer">
+    <!-- JS will populate this -->
+  </div>
+
+  <div class="section-label">往期回顾</div>
+  <div class="card" id="historyContainer">
+    <div class="history-list" id="historyList">
+      <!-- JS will populate -->
+    </div>
+  </div>
+</div>
+
+<!-- ====== Page 2: 核心原则 ====== -->
+<div class="page" id="page-principles">
+  <div class="page-header">
+    <h1>🧭 核心原则</h1>
+    <p>记住这几条，比任何方案都有用</p>
+  </div>
+
+  <div class="principle p-green fade">
+    <div class="num">01</div>
+    <h3>多动 · 多喝水 · 少加工 · 睡够</h3>
+    <p>这四件事覆盖了 80% 的健康收益。具体吃什么、什么时候运动、选哪种补剂——都是锦上添花的细节。</p>
+    <div class="why">
+      <strong>为什么？</strong> 大量 meta-analysis 反复证实：运动量、水分摄入、超加工食品比例、睡眠时长是最强的全因死亡率预测因子。单一营养素（如鱼油、维D）的研究结果往往相互矛盾。
+    </div>
+  </div>
+
+  <div class="principle p-blue fade">
+    <div class="num">02</div>
+    <h3>一次只改一件事</h3>
+    <p>这个月就养成一个习惯。下个月再加一个。同时改 10 件事 = 一件都坚持不下来。</p>
+    <div class="why">
+      <strong>为什么？</strong> 行为心理学中的"习惯堆叠"理论（BJ Fogg）：新习惯需要挂载到已有的自动化行为上。一次装载太多，大脑的执行功能会耗竭。
+    </div>
+  </div>
+
+  <div class="principle p-orange fade">
+    <div class="num">03</div>
+    <h3>体检数据才是真反馈</h3>
+    <p>任何方案都是假设，3 个月后复查血脂和尿酸，数据会告诉你方向对不对。</p>
+    <div class="why">
+      <strong>为什么？</strong> 个体差异极大。同样的饮食干预，有人 LDL 降 0.5，有人纹丝不动。基因、肠道菌群、代谢类型都不同。只有你自己的数据才有意义。
+    </div>
+  </div>
+
+  <div class="principle p-purple fade">
+    <div class="num">04</div>
+    <h3>辩证看待所有"健康建议"</h3>
+    <p>包括这份指南在内。营养学是一个不断演进的领域，今天的"共识"可能明天被推翻。保持好奇但保持怀疑。</p>
+    <div class="why">
+      <strong>例子：</strong> 鸡蛋曾被认为升胆固醇要限量，后来研究发现膳食胆固醇对血液胆固醇影响很小。椰子油曾被捧为超级食物，后来发现它升 LDL 的能力和黄油差不多。
+    </div>
+  </div>
+
+  <div class="principle p-rose fade">
+    <div class="num">05</div>
+    <h3>医生 > 任何文章和方案</h3>
+    <p>你的 LDL + HDL + 家族高血压史，值得去心内科让医生做一次个性化评估。这比我们讨论的所有东西都重要。</p>
+    <div class="why">
+      <strong>行动项：</strong> 挂一个心内科号，带上体检报告，让医生评估你的 10 年心血管风险（ASCVD 风险评分），决定是否需要药物干预。
+    </div>
+  </div>
+
+  <div class="quote">
+    <div class="quote-text">不追求 100%<br>能稳定做到就赢了</div>
+    <div class="quote-sub">健康管理的敌人不是偶尔放纵，而是完美主义导致的放弃</div>
+  </div>
+</div>
+
+<!-- ====== Page 3: 我的数据 ====== -->
+<div class="page" id="page-me">
+  <div class="page-header">
+    <h1>📊 我的档案</h1>
+    <p>36 岁 · 男性 · 最近一次体检</p>
+  </div>
+
+  <div class="my-data fade">
+    <div class="data-card">
+      <div class="d-value">3.43</div>
+      <div class="d-label">LDL-C (mmol/L)</div>
+      <div class="d-status status-warn">偏高 · 目标 &lt;3.0</div>
+    </div>
+    <div class="data-card">
+      <div class="d-value">1.10</div>
+      <div class="d-label">HDL-C (mmol/L)</div>
+      <div class="d-status status-warn">偏低 · 目标 &gt;1.3</div>
+    </div>
+    <div class="data-card">
+      <div class="d-value">387.7</div>
+      <div class="d-label">尿酸 (μmol/L)</div>
+      <div class="d-status status-warn">偏高 · 目标 &lt;360</div>
+    </div>
+    <div class="data-card">
+      <div class="d-value">~30</div>
+      <div class="d-label">HRV</div>
+      <div class="d-status status-warn">偏低 · 目标 40+</div>
+    </div>
+  </div>
+
+  <div class="section-label">需要关注的</div>
+
+  <div class="accordion fade" onclick="toggleAcc(this)">
+    <div class="accordion-header">
+      <span class="a-emoji">🫀</span>
+      <span class="a-title">血脂异常 + 家族高血压史</span>
+      <span class="a-chevron">▼</span>
+    </div>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        LDL 偏高 + HDL 偏低的组合，加上父亲有高血压史，意味着心血管风险需要认真对待。<br><br>
+        <strong>最重要的一步：</strong>去心内科做一次 ASCVD 风险评估。医生会根据你的综合情况判断是否需要药物干预。<br><br>
+        <strong>生活方式能做的：</strong>有氧运动（游泳最佳）、减少饱和脂肪、增加可溶性纤维（燕麦等）。但如果 3 个月后 LDL 仍 >3.4，低剂量他汀可能是更有效的选择——这不是失败，是理性决策。
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion fade" onclick="toggleAcc(this)">
+    <div class="accordion-header">
+      <span class="a-emoji">💎</span>
+      <span class="a-title">尿酸偏高</span>
+      <span class="a-chevron">▼</span>
+    </div>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        387.7 μmol/L 虽然偏高，但还没到需要药物的程度（通常 >480 才考虑）。<br><br>
+        <strong>最有效的手段（证据从强到弱）：</strong><br>
+        · 多喝水（每天 2000ml+）——排尿酸最直接的方式<br>
+        · 减少含糖饮料和果汁——果糖升尿酸的证据很强<br>
+        · 减少啤酒——酒精+嘌呤双重打击<br>
+        · 控制体重——肥胖是高尿酸的独立危险因素<br><br>
+        <strong>辩证看：</strong>以前说海鲜嘌呤高要少吃，但近年研究发现膳食嘌呤对血尿酸的影响远不如果糖和酒精。正常吃鱼虾问题不大，浓汤和内脏确实要少碰。
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion fade" onclick="toggleAcc(this)">
+    <div class="accordion-header">
+      <span class="a-emoji">🫁</span>
+      <span class="a-title">肝囊肿 + 胆囊息肉</span>
+      <span class="a-chevron">▼</span>
+    </div>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        <strong>肝囊肿 11×10mm：</strong>绝大多数是良性的，不需要治疗，只需定期 B 超监测。超过 5cm 或出现症状才考虑干预。<br><br>
+        <strong>胆囊息肉 5×3mm：</strong><10mm 的息肉每 6-12 个月 B 超监测即可。如果增长到 >10mm 或形态发生变化，医生会建议进一步检查。<br><br>
+        <strong>生活方式建议：</strong>少油炸、低饱和脂肪、规律进餐（不要长时间不吃饭再暴食，这对胆囊不好）。
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion fade" onclick="toggleAcc(this)">
+    <div class="accordion-header">
+      <span class="a-emoji">💆</span>
+      <span class="a-title">筋膜炎 + 腰肌劳损 + HRV 低</span>
+      <span class="a-chevron">▼</span>
+    </div>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        这三者往往是关联的：长期久坐 + 高压 → 交感神经亢奋 → HRV 低 → 肌肉紧张 → 筋膜炎/腰肌劳损。<br><br>
+        <strong>最有效的干预：</strong><br>
+        · 每 45-60 分钟起身活动（比任何治疗都管用）<br>
+        · 游泳（对腰椎零冲击）<br>
+        · 每天 10 分钟拉伸（猫牛式、髋部旋转、胸椎旋转）<br>
+        · 呼吸训练（吸4-屏4-呼6，直接提升 HRV）<br>
+        · 泡沫轴（100 块的自我按摩工具）<br><br>
+        <strong>避免：</strong>大重量硬拉、仰卧起坐（对腰椎压力大）
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">当前补剂</div>
+  <div class="card fade">
+    <div class="card-body">
+      · <strong>甘氨酸镁</strong> — 晚饭后 · 200-400mg · 帮助放松和睡眠<br>
+      · <strong>茶氨酸</strong> — 睡前1h · 200mg · 辅助入睡<br>
+      · <strong>维 C 泡腾片</strong> — 早餐时 · ≤500mg<br>
+      · <strong>综合维 B</strong> — 周一/三/五 · 早餐时<br><br>
+      <span style="color:var(--text3);font-size:12px;">💡 这四个都有合理的证据支持，保持即可。不需要额外加鱼油（吃鱼就够）、辅酶Q10、维D（先查血再说）等。</span>
+    </div>
+  </div>
+
+  <div class="section-label">复查时间</div>
+  <div class="callout c-blue">
+    <span class="callout-icon">📅</span>
+    <div>
+      <strong>3 个月</strong> — 血脂四项 + 尿酸<br>
+      <strong>6 个月</strong> — 肝胆 B 超<br>
+      <strong>年度</strong> — 全面体检 + 维生素 D 检测<br>
+      <strong>尽快</strong> — 心内科就诊，评估心血管风险
+    </div>
+  </div>
+</div>
+
+<!-- ====== Tab Bar ====== -->
+<div class="tab-bar">
+  <div class="tab-item active" data-page="page-today">
+    <span class="tab-icon">💡</span>
+    <span>今日</span>
+    <span class="tab-dot"></span>
+  </div>
+  <div class="tab-item" data-page="page-principles">
+    <span class="tab-icon">🧭</span>
+    <span>原则</span>
+    <span class="tab-dot"></span>
+  </div>
+  <div class="tab-item" data-page="page-me">
+    <span class="tab-icon">📊</span>
+    <span>我的</span>
+    <span class="tab-dot"></span>
+  </div>
+</div>
+
+<script>
+// === Tab Navigation ===
+const tabs = document.querySelectorAll('.tab-item');
+const pages = document.querySelectorAll('.page');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const pageId = tab.dataset.page;
+    tabs.forEach(t => t.classList.remove('active'));
+    pages.forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(pageId).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Trigger fade animations
+    setTimeout(() => {
+      document.getElementById(pageId).querySelectorAll('.fade').forEach((el, i) => {
+        setTimeout(() => el.classList.add('show'), i * 80);
+      });
+    }, 100);
+  });
+});
+
+// Initial fade-in for active page
+document.querySelectorAll('.page.active .fade').forEach((el, i) => {
+  setTimeout(() => el.classList.add('show'), i * 80);
+});
+
+// === Accordion ===
+function toggleAcc(el) {
+  el.classList.toggle('open');
+}
+
+// === Knowledge Data ===
+// This data will be updated by the daily automation
+const KNOWLEDGE_DATA = {
+  "2026-03-20": [
+    {
+      tag: "血脂管理·与你相关",
+      title: "2026 新指南：LDL \"越低越好，越早越好\"",
+      body: "美国心脏病学会/美国心脏协会（<strong>ACC/AHA</strong>）刚刚于 3 月 13 日发布了 <strong>2026 血脂异常管理指南</strong>，这是 8 年来的首次重大更新。核心变化：\n\n· 重新设定明确的 LDL-C 数值目标（之前的指南曾淡化目标值）\n· 中等风险人群 LDL-C 目标 <strong>< 2.6 mmol/L（100mg/dL）</strong>\n· 高风险人群目标 <strong>< 1.8 mmol/L（70mg/dL）</strong>\n· 新增推荐：所有成年人应至少测一次 <strong>Lp(a)脂蛋白(a)</strong>\n· 采用新的 PREVENT-ASCVD 风险方程替代旧模型\n\n<strong>对你的意义：</strong>你的 LDL 3.43 + HDL 1.10 + 父亲高血压，按新指南属于需要认真评估的人群。建议去心内科时提一下这个新指南，让医生用 PREVENT 方程算一下你的 10 年风险。\n\n<strong>辩证看：</strong>\"LDL 越低越好\" 主要针对有动脉粥样硬化风险的人群。对于完全健康的年轻人，过度追求极低 LDL 是否必要仍有争议。关键是<strong>根据个人风险等级决定目标</strong>，而非一刀切。",
+      source: "ACC/AHA 2026 Guideline on Management of Dyslipidemia, JACC, 2026年3月13日",
+      evidence: "strong"
+    },
+    {
+      tag: "睡眠·可操作",
+      title: "Huberman 2026 睡眠方案：行为工具占 80%，补剂仅 20%",
+      body: "Andrew Huberman 的 <strong>2026 年睡眠优化方案</strong> 有个核心观点值得记住——补剂只是锦上添花，真正有效的是几个行为习惯：\n\n<strong>最重要的 3 件事（免费）：</strong>\n· 🌅 醒后 30 分钟内接触自然光 10-30 分钟（不戴墨镜、不隔窗）\n· 🌡️ 卧室温度降到约 19°C，睡前洗热水澡引起体温反弹性下降\n· ⏰ 固定起床时间（比固定入睡时间更重要，包括周末）\n\n<strong>补剂部分（你已经在吃的）：</strong>甘氨酸镁 + 茶氨酸正是他推荐的核心组合。他额外推荐了 50mg 芹菜素（Apigenin），但注意这个可能影响雌激素通路。\n\n<strong>他明确不推荐的：</strong>长期服用褪黑素（市售剂量通常远超生理水平，可能抑制自身分泌）。",
+      source: "Huberman Lab Podcast; CoreStacks 2026年3月1日综述",
+      evidence: "strong"
+    },
+    {
+      tag: "尿酸·与你相关",
+      title: "尿酸不只影响关节，对肌肉骨骼系统有广泛影响",
+      body: "2025 年 <strong>Frontiers in Endocrinology</strong> 发表的综述揭示了尿酸影响身体的复杂性：\n\n<strong>\"双刃剑\" 效应：</strong>\n· 正常范围内的尿酸有<strong>抗氧化保护作用</strong>（保护肌肉和骨密度）\n· 但超过阈值后会通过<strong>氧化应激和炎症</strong>损害关节、椎间盘、甚至肌肉功能\n· 与椎间盘退变呈 \"U 型\" 关系——过高或过低都不好\n\n<strong>对你的意义：</strong>你的 387.7 μmol/L 轻度偏高，配合容易筋膜炎和腰肌劳损的情况，降到正常范围（<360）可能对肌骨健康有额外好处。\n\n<strong>最有循证的降尿酸方法（非药物）：</strong>\n· 充足饮水（每天 2L+）\n· 减少含糖饮料和果汁（果糖的影响 > 海鲜嘌呤）\n· 限制酒精（尤其啤酒）\n· 适当的樱桃/维C 摄入有弱至中等证据支持",
+      source: "Frontiers in Endocrinology, 2025; Zhang et al. DOI: 10.3389/fendo.2025.1515176",
+      evidence: "moderate"
+    }
+  ]
+};
+
+// === Render Knowledge ===
+function renderKnowledge() {
+  const container = document.getElementById('knowledgeContainer');
+  const today = new Date().toISOString().split('T')[0];
+
+  // Try today first, then fallback to most recent
+  let dateKey = today;
+  let data = KNOWLEDGE_DATA[dateKey];
+  
+  if (!data) {
+    // Find most recent date
+    const dates = Object.keys(KNOWLEDGE_DATA).sort().reverse();
+    if (dates.length > 0) {
+      dateKey = dates[0];
+      data = KNOWLEDGE_DATA[dateKey];
+    }
+  }
+
+  if (!data || data.length === 0) {
+    container.innerHTML = `
+      <div class="knowledge-empty">
+        <div class="empty-icon">📭</div>
+        <div>今天的知识还在路上<br>明天早上来看看</div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = data.map((item, i) => `
+    <div class="knowledge-card fade" style="animation-delay:${i * 0.1}s">
+      <div class="k-header">
+        <span class="k-tag">${item.tag}</span>
+        <span class="k-date">${formatDate(dateKey)}</span>
+      </div>
+      <div class="k-title">${item.title}</div>
+      <div class="k-body">${item.body.replace(/\n/g, '<br>')}</div>
+      <div class="k-source">
+        📖 ${item.source}
+        <span class="k-evidence ${item.evidence === 'strong' ? 'evidence-strong' : 'evidence-moderate'}">
+          ${item.evidence === 'strong' ? '✓ 强证据' : '~ 中等证据'}
+        </span>
+      </div>
+    </div>
+  `).join('');
+
+  // Animate in
+  setTimeout(() => {
+    container.querySelectorAll('.fade').forEach((el, i) => {
+      setTimeout(() => el.classList.add('show'), i * 120);
+    });
+  }, 100);
+
+  // Render history
+  renderHistory(dateKey);
+}
+
+function renderHistory(currentDate) {
+  const historyList = document.getElementById('historyList');
+  const dates = Object.keys(KNOWLEDGE_DATA).sort().reverse().filter(d => d !== currentDate);
+
+  if (dates.length === 0) {
+    historyList.innerHTML = '<div style="text-align:center;color:var(--text3);font-size:13px;padding:12px;">刚开始，还没有往期内容</div>';
+    return;
+  }
+
+  historyList.innerHTML = dates.slice(0, 7).map(d => {
+    const items = KNOWLEDGE_DATA[d];
+    const titles = items.map(it => it.title).join(' · ');
+    return `
+      <div class="history-item" onclick="showDate('${d}')">
+        <span class="h-date">${formatDate(d)}</span>
+        <span class="h-title" style="color:var(--text2);font-size:13px;">${titles}</span>
+        <span class="h-arrow">›</span>
+      </div>`;
+  }).join('');
+}
+
+function showDate(dateKey) {
+  const data = KNOWLEDGE_DATA[dateKey];
+  if (!data) return;
+  
+  const container = document.getElementById('knowledgeContainer');
+  container.innerHTML = data.map((item, i) => `
+    <div class="knowledge-card fade show">
+      <div class="k-header">
+        <span class="k-tag">${item.tag}</span>
+        <span class="k-date">${formatDate(dateKey)}</span>
+      </div>
+      <div class="k-title">${item.title}</div>
+      <div class="k-body">${item.body.replace(/\n/g, '<br>')}</div>
+      <div class="k-source">
+        📖 ${item.source}
+        <span class="k-evidence ${item.evidence === 'strong' ? 'evidence-strong' : 'evidence-moderate'}">
+          ${item.evidence === 'strong' ? '✓ 强证据' : '~ 中等证据'}
+        </span>
+      </div>
+    </div>
+  `).join('');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+
+// Init
+renderKnowledge();
+</script>
+</body>
+</html>
